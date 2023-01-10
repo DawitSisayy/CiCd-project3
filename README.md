@@ -1,4 +1,4 @@
-# UdaPeople  [![CircleCI](https://circleci.com/gh/salahbeeh/udapeople.svg?style=svg)](https://circleci.com/gh/udapeople/udapeople)
+
 
 Build CI/CD Pipelines, Monitoring & Logging
    
