@@ -1,17 +1,17 @@
 version: 2.1
 
-# orbs:
+orbs:
   
-#   slack: circleci/slack@4.10.1
+  slack: circleci/slack@4.10.1
 
-# commands:
+commands:
 
-#   failure_notifcation:
-#     steps:
-#       - slack/notify:
-#           event: fail
-#           channel: udapeople-alerting
-#           template: basic_fail_1
+  failure_notifcation:
+    steps:
+      - slack/notify:
+          event: fail
+          channel: udapeople-alerting
+          template: basic_fail_1
 
 #   install_awscli:
 #     steps:
@@ -157,11 +157,8 @@ jobs:
               cd frontend
               npm install
               npm update
-              npm audit fix --audit-level=critical --force
-
-              # npm audit fix --audit-level=critical --force
-              # npm audit --audit-level=critical
-  #     - failure_notifcation
+              npm audit fix --audit-level=critical --force             
+      # - failure_notifcation
 
 
   scan-backend:
@@ -177,12 +174,8 @@ jobs:
              cd backend
              npm install             
              npm update
-             npm audit fix --audit-level=critical --force
-            #  npm audit fix  --audit-level=critical --force
-            #  npm audit fix  --audit-level=critical --force
-            #  npm audit --audit-level=critical
-            
-  #     - failure_notifcation
+             npm audit fix --audit-level=critical --force      
+      - failure_notifcation
 
   # deploy-infrastructure:
   #   docker:
