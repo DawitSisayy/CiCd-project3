@@ -1,5 +1,5 @@
 [URL01]
-https://github.com/salahbeeh/udapeople
+https://github.com/DawitSisayy/CiCd-project3
 
 [URL02]
 http://udapeople-a6bb2f3.s3-website-us-east-1.amazonaws.com
