@@ -146,24 +146,27 @@ jobs:
 
   scan-frontend:
     docker:
-      - image: cimg/node:13.8.0
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - restore_cache:
           keys: [frontend-dependencies]
       - run:
-          name: Front-end scan
+          name: scan frontend dependencies
           command: |
               cd frontend
-              npm install             
+              npm install
+              npm update
               npm audit fix --audit-level=critical --force
-              npm audit --audit-level=critical
+
+              # npm audit fix --audit-level=critical --force
+              # npm audit --audit-level=critical
   #     - failure_notifcation
 
 
   scan-backend:
     docker:
-      - image: cimg/node:13.8.0
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -172,10 +175,12 @@ jobs:
           name: scan backend dependencies
           command: |
              cd backend
-             npm install
-             npm audit fix  --audit-level=critical --force
-             npm audit fix  --audit-level=critical --force
-             npm audit --audit-level=critical
+             npm install             
+             npm update
+             npm audit fix --audit-level=critical --force
+            #  npm audit fix  --audit-level=critical --force
+            #  npm audit fix  --audit-level=critical --force
+            #  npm audit --audit-level=critical
             
   #     - failure_notifcation
 
