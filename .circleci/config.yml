@@ -93,7 +93,7 @@ jobs:
           paths: [frontend/node_modules]
           key: frontend-dependencies
 
-      - failure_notifcation
+      # - failure_notifcation
 
   build-backend:
     docker:
@@ -112,7 +112,7 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-dependencies
-      - failure_notifcation
+      # - failure_notifcation
 
   # test-frontend:
   #   docker:
