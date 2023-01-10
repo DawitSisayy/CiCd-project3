@@ -39,40 +39,40 @@ commands:
 #             curl -fsSL https://deb.nodesource.com/setup_14.x | sudo -E bash -
 #             sudo apt install -y nodejs
 
-#   destroy-environment:
-#     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
-#     parameters:
-#       workflow_ID:
-#         type: string
-#         default: ${CIRCLE_WORKFLOW_ID:0:7}   
-#     steps:
-#       - run:
-#           name: Destroy environments
-#           when: on_fail
-#           command: |
-#              aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.workflow_ID >>
-#              aws s3 rm s3://udapeople-<<parameters.workflow_ID>> --recursive
-#              aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.workflow_ID >>
+  destroy-environment:
+    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+    parameters:
+      workflow_ID:
+        type: string
+        default: ${CIRCLE_WORKFLOW_ID:0:7}   
+    steps:
+      - run:
+          name: Destroy environments
+          when: on_fail
+          command: |
+             aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.workflow_ID >>
+             aws s3 rm s3://udapeople-<<parameters.workflow_ID>> --recursive
+             aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.workflow_ID >>
 
-#   revert-migrations:
-#     description: Revert the last migration if successfully run in the current workflow.
-#     parameters:
-#       workflow_ID:
-#         type: string
-#         default: ${CIRCLE_WORKFLOW_ID:0:7}  
-#     steps:
-#       - run:
-#           name: Revert migrations
-#           when: on_fail 
-#           command: |
+  revert-migrations:
+    description: Revert the last migration if successfully run in the current workflow.
+    parameters:
+      workflow_ID:
+        type: string
+        default: ${CIRCLE_WORKFLOW_ID:0:7}  
+    steps:
+      - run:
+          name: Revert migrations
+          when: on_fail 
+          command: |
           
-#             SUCCESS=$(curl --insecure https://kvdb.io/${KVDB_BUCKET}/migration_<< parameters.workflow_ID >>)
-#             if(( $SUCCESS==1 )); 
-#             then
-#               cd ~/project/backend
-#               npm install
-#               npm run migration:revert
-#             fi
+            SUCCESS=$(curl --insecure https://kvdb.io/${KVDB_BUCKET}/migration_<< parameters.workflow_ID >>)
+            if(( $SUCCESS==1 )); 
+            then
+              cd ~/project/backend
+              npm install
+              npm run migration:revert
+            fi
             
 jobs:
   build-frontend:
@@ -175,50 +175,50 @@ jobs:
              npm install             
              npm update
              npm audit fix --audit-level=critical --force   
-             exit 1   
-      - failure_notifcation
+             
+      # - failure_notifcation
 
-  # deploy-infrastructure:
-  #   docker:
-  #     - image: amazon/aws-cli
-  #   steps:
-  #     - checkout
-  #     - run:
-  #         name: Ensure back-end infrastructure exists
-  #         command: |
-  #           aws cloudformation deploy \
-  #             --template-file .circleci/files/backend.yml \
-  #             --tags project=udapeople \
-  #             --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-  #             --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  
+  deploy-infrastructure:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Ensure back-end infrastructure exists
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/backend.yml \
+              --tags project=udapeople \
+              --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  
               
-  #     - run:
-  #         name: Ensure front-end infrastructure exist
-  #         command: |
-  #           aws cloudformation deploy \
-  #             --template-file .circleci/files/frontend.yml \
-  #             --tags project=udapeople \
-  #             --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
-  #             --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  
+      - run:
+          name: Ensure front-end infrastructure exist
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/frontend.yml \
+              --tags project=udapeople \
+              --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  
               
-  #     - run:
-  #         name: Add back-end ip to ansible inventory
-  #         command: |
-  #           BACKEND_PUBLIC_IP=$(aws ec2 describe-instances \
-  #           --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-  #           --query 'Reservations[*].Instances[*].PublicIpAddress' \
-  #           --output text)
+      - run:
+          name: Add back-end ip to ansible inventory
+          command: |
+            BACKEND_PUBLIC_IP=$(aws ec2 describe-instances \
+            --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+            --query 'Reservations[*].Instances[*].PublicIpAddress' \
+            --output text)
 
-  #           echo $BACKEND_PUBLIC_IP >> .circleci/ansible/inventory.txt
-  #           cat .circleci/ansible/inventory.txt
+            echo $BACKEND_PUBLIC_IP >> .circleci/ansible/inventory.txt
+            cat .circleci/ansible/inventory.txt
       
-  #     - run: yum -y install tar gzip     
-  #     - persist_to_workspace: 
-  #         root: ~/
-  #         paths:
-  #           - project/.circleci/ansible/inventory.txt
+      - run: yum -y install tar gzip     
+      - persist_to_workspace: 
+          root: ~/
+          paths:
+            - project/.circleci/ansible/inventory.txt
 
-  #     - destroy-environment
+      # - destroy-environment
     
 
   # configure-infrastructure:
