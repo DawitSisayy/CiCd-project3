@@ -219,32 +219,55 @@ jobs:
 
       - destroy-environment
     
-
   configure-infrastructure:
     docker:
-      # - image: cimg/base:stable
-      - image: python:3.10.5-alpine3.16
+      - image: python:3.7-alpine3.11
     steps:
       - checkout
-      - install_awscli
-      - install_ansible
       - add_ssh_keys:
-          fingerprints: 
-          - "64:fd:52:42:8f:f6:6b:84:a1:68:fa:06:ee:32:81:1c"
-      
+          fingerprints: ["64:fd:52:42:8f:f6:6b:84:a1:68:fa:06:ee:32:81:1c"]
       - attach_workspace:
           at: ~/
-      - run: cat ./.circleci/ansible/inventory.txt
+      - run:
+          name: Install ansible.
+          command: |
+            apk add --update ansible
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update tar gzip ansible nodejs npm curl && \
+            pip install awscli
       - run:
           name: Configure server
-          working_directory: ./.circleci/ansible
           command: |
+            cd .circleci/ansible && \
+            cat inventory.txt && \
             ansible-playbook -i inventory.txt configure-server.yml
-            # cd .circleci/ansible
-            # cat inventory.txt
-            
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7} 
 
-      - destroy-environment 
+
+  # configure-infrastructure:
+  #   docker:
+  #     - image: cimg/base:stable
+  #   steps:
+  #     - checkout
+  #     - install_awscli
+  #     - install_ansible
+  #     - add_ssh_keys:
+  #         fingerprints: 
+  #         - "64:fd:52:42:8f:f6:6b:84:a1:68:fa:06:ee:32:81:1c"
+      
+  #     - attach_workspace:
+  #         at: ~/
+
+  #     - run:
+  #         name: Configure server
+  #         command: |
+  #           cd .circleci/ansible
+  #           cat inventory.txt
+  #           ansible-playbook -i inventory.txt configure-server.yml
+  #     - destroy-environment 
 
 
   run-migrations:
