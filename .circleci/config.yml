@@ -15,13 +15,13 @@ commands:
           channel: udapeople-alerting
           template: basic_fail_1
 
-  install_awscli:
-    steps:
-      - run:
-          command: |
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
+  # install_awscli:
+  #   steps:
+  #     - run:
+  #         command: |
+  #           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+  #           unzip awscliv2.zip
+  #           sudo ./aws/install
 
   install_ansible:
     steps:
@@ -250,7 +250,7 @@ jobs:
             yum update -y && \
             yum install -y tar gzip curl unzip openssh-server openssh-clients && \
             python3 -m pip install ansible
-      - install_awscli
+      # - install_awscli
       # - install_ansible
       - add_ssh_keys:
           fingerprints: 
@@ -280,7 +280,7 @@ jobs:
       - image: cimg/node:13.8.0
     steps:
       - checkout
-      - install_awscli
+      # - install_awscli
       - run:
           name: Run migrations
           command: |
