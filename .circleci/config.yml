@@ -280,7 +280,7 @@ jobs:
             # Your code here
             cd .circleci/ansible
             ansible-playbook -i inventory.txt node-exporter.yml
-      - remove-bucket-contents
+      - revert-migrations
       - destroy-environment 
 
 
@@ -460,7 +460,7 @@ jobs:
           at: ~/
 
       # - install_nodejs
-      - install_awscli
+      # - install_awscli
       - install_ansible
       - run: 
           name: Deploy backend
