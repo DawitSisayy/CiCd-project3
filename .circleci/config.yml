@@ -569,8 +569,10 @@ jobs:
       - image: python:3.7-alpine3.11
     steps:
       - checkout
+
       - add_ssh_keys:
-          fingerprints: ["64:fd:52:42:8f:f6:6b:84:a1:68:fa:06:ee:32:81:1c"]
+          fingerprints: 
+            ["64:fd:52:42:8f:f6:6b:84:a1:68:fa:06:ee:32:81:1c"]
       - attach_workspace:
           at: ~/
       - restore_cache:
@@ -587,8 +589,8 @@ jobs:
             tar -C backend -czvf backend_artifact.tar.gz . && \
             cd .circleci/ansible && \
             ansible-playbook -i inventory.txt deploy-backend.yml
-      - destroy-environment:
-        
+
+      - destroy-environment
       - revert-migrations
 
 
