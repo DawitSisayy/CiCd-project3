@@ -308,6 +308,10 @@ jobs:
             fi
       - destroy-environment
       - revert-migrations
+ 
+ 
+
+
 
   # deploy-frontend:
   #   docker:
@@ -515,50 +519,78 @@ jobs:
   #     - destroy-environment
   #     - revert-migrations
 
+  # deploy-backend:
+  #   docker:
+  #     - image: cimg/base:stable
+  #   steps:
+  #     - checkout
+  #     # - install_awscli
+  #     - install_ansible
+  #     # - install_nodejs
+  #     - add_ssh_keys:
+  #         fingerprints: ["64:fd:52:42:8f:f6:6b:84:a1:68:fa:06:ee:32:81:1c"]
+      
+  #     - attach_workspace:
+  #         at: ~/
+      
+  #     - restore_cache:
+  #         keys: [backend-dependencies]
+      
+  #     - run:
+  #         name: Install dependencies
+  #         command: |
+  #           cd backend
+  #           npm install 
+  #     - run:
+  #         name: package backend
+  #         command: |
+  #           cd backend
+  #           npm run build
+  #           # Zip the directory
+  #           tar -czf artifact.tar.gz dist/* package*
+  #           cd ..
+  #           cp backend/artifact.tar.gz .circleci/ansible/roles/deploy/files
+  #     - run:
+  #         name: deploy backend
+  #         command: |
+  #           export TYPEORM_MIGRATIONS_DIR=./migrations
+  #           export TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js}
+  #           export TYPEORM_MIGRATIONS=./migrations/*.ts
+  #           cd .circleci/ansible
+  #           echo "Contents  of the inventory.txt file is -------"
+  #           cat inventory.txt
+  #           ansible-playbook -i inventory.txt deploy-backend.yml
+  #     # Here's where you will add some code to rollback on failure  
+  #     - destroy-environment    
+  #     - revert-migrations
+
   deploy-backend:
     docker:
-      - image: cimg/base:stable
+      - image: python:3.7-alpine3.11
     steps:
       - checkout
-      # - install_awscli
-      - install_ansible
-      # - install_nodejs
       - add_ssh_keys:
           fingerprints: ["64:fd:52:42:8f:f6:6b:84:a1:68:fa:06:ee:32:81:1c"]
-      
       - attach_workspace:
           at: ~/
-      
       - restore_cache:
-          keys: [backend-dependencies]
-      
+          keys: [build-backend]
       - run:
           name: Install dependencies
           command: |
-            cd backend
-            npm install 
+            apk add --update tar gzip ansible nodejs npm curl openssh-client
+            pip install awscli
       - run:
-          name: package backend
+          name: Deploy backend
+          no_output_timeout: 30m
           command: |
-            cd backend
-            npm run build
-            # Zip the directory
-            tar -czf artifact.tar.gz dist/* package*
-            cd ..
-            cp backend/artifact.tar.gz .circleci/ansible/roles/deploy/files
-      - run:
-          name: deploy backend
-          command: |
-            export TYPEORM_MIGRATIONS_DIR=./migrations
-            export TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js}
-            export TYPEORM_MIGRATIONS=./migrations/*.ts
-            cd .circleci/ansible
-            echo "Contents  of the inventory.txt file is -------"
-            cat inventory.txt
+            tar -C backend -czvf backend_artifact.tar.gz . && \
+            cd .circleci/ansible && \
             ansible-playbook -i inventory.txt deploy-backend.yml
-      # Here's where you will add some code to rollback on failure  
-      - destroy-environment    
+      - destroy-environment:
+        
       - revert-migrations
+
 
   # smoke-test:
   #   docker:
