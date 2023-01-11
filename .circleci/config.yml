@@ -333,54 +333,54 @@ jobs:
       - destroy-environment    
       - revert-migrations
 
-  # deploy-backend:
-  #   docker:
-  #     - image: cimg/base:stable
-  #   steps:
-  #     - checkout
-  #     - install_awscli
-  #     - install_ansible
-  #     - install_nodejs
-  #     - add_ssh_keys:
-  #         fingerprints: ["34:0d:60:21:db:cf:e7:76:e1:68:06:f5:61:4a:30:ed"]
+  deploy-backend:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - install_awscli
+      - install_ansible
+      - install_nodejs
+      - add_ssh_keys:
+          fingerprints: ["64:fd:52:42:8f:f6:6b:84:a1:68:fa:06:ee:32:81:1c"]
       
-  #     - attach_workspace:
-  #         at: ~/
+      - attach_workspace:
+          at: ~/
       
-  #     - restore_cache:
-  #         keys: [backend-dependencies]
+      - restore_cache:
+          keys: [backend-dependencies]
       
-  #     - run:
-  #         name: Install dependencies
-  #         command: |
-  #           cd backend
-  #           npm install 
+      - run:
+          name: Install dependencies
+          command: |
+            cd backend
+            npm install 
 
-  #     - run:
-  #         name: package backend
-  #         command: |
-  #           cd backend
-  #           npm run build
-  #           # Zip the directory
-  #           tar -czf artifact.tar.gz dist/* package*
+      - run:
+          name: package backend
+          command: |
+            cd backend
+            npm run build
+            # Zip the directory
+            tar -czf artifact.tar.gz dist/* package*
 
-  #           cd ..
-  #           cp backend/artifact.tar.gz .circleci/ansible/roles/deploy/files
+            cd ..
+            cp backend/artifact.tar.gz .circleci/ansible/roles/deploy/files
 
-  #     - run:
-  #         name: deploy backend
-  #         command: |
-  #           export TYPEORM_MIGRATIONS_DIR=./migrations
-  #           export TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js}
-  #           export TYPEORM_MIGRATIONS=./migrations/*.ts
+      - run:
+          name: deploy backend
+          command: |
+            export TYPEORM_MIGRATIONS_DIR=./migrations
+            export TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js}
+            export TYPEORM_MIGRATIONS=./migrations/*.ts
 
-  #           cd .circleci/ansible
-  #           echo "Contents  of the inventory.txt file is -------"
-  #           cat inventory.txt
-  #           ansible-playbook -i inventory.txt deploy-backend.yml
-  #     # Here's where you will add some code to rollback on failure  
-  #     - destroy-environment    
-  #     - revert-migrations
+            cd .circleci/ansible
+            echo "Contents  of the inventory.txt file is -------"
+            cat inventory.txt
+            ansible-playbook -i inventory.txt deploy-backend.yml
+      # Here's where you will add some code to rollback on failure  
+      - destroy-environment    
+      - revert-migrations
 
   
 
