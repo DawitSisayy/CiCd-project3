@@ -1,8 +1,10 @@
 version: 2.1
 
 orbs:
-  
-  slack: circleci/slack@4.10.1
+  slack: circleci/slack@4.12.0
+  aws-cli: circleci/aws-cli@3.1.4
+  ansible_upload: orbss/ansible_upload@0.2.8
+  # slack: circleci/slack@4.10.1
 
 commands:
 
@@ -53,7 +55,19 @@ commands:
              aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.workflow_ID >>
              aws s3 rm s3://udapeople-<<parameters.workflow_ID>> --recursive
              aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.workflow_ID >>
-
+  remove-bucket-contents:
+    description: Remove contents of bucket
+    parameters:
+      bucket_name:
+        type: string
+        default: "${CIRCLE_WORKFLOW_ID:0:7}"
+    steps:
+      - run:
+          name: Remove contents of bucket
+          when: on_fail
+          command: |
+             # your code here
+             aws s3 rm s3://udapeople-<< parameters.bucket_name >> --recursive
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
     parameters:
@@ -219,55 +233,46 @@ jobs:
 
       - destroy-environment
     
+  
   configure-infrastructure:
     docker:
-      - image: python:3.7-alpine3.11
+      - image: amazon/aws-cli
     steps:
       - checkout
-      - add_ssh_keys:
-          fingerprints: ["64:fd:52:42:8f:f6:6b:84:a1:68:fa:06:ee:32:81:1c"]
-      - attach_workspace:
-          at: ~/
-      - run:
-          name: Install ansible.
-          command: |
-            apk add --update ansible
       - run:
           name: Install dependencies
           command: |
-            apk add --update tar gzip ansible nodejs npm curl && \
-            pip install awscli
+            # Your code here
+            yum install -y gcc libffi-devel python3 epel-release && \
+            yum install -y python3-pip && \
+            yum install -y wget && \
+            yum clean all && \
+            yum update -y && \
+            yum install -y tar gzip curl unzip openssh-server openssh-clients && \
+            python3 -m pip install ansible
+      - install_awscli
+      # - install_ansible
+      - add_ssh_keys:
+          fingerprints: 
+          - "64:fd:52:42:8f:f6:6b:84:a1:68:fa:06:ee:32:81:1c"
+      
+      - attach_workspace:
+          at: ~/
+
       - run:
           name: Configure server
           command: |
-            cd .circleci/ansible && \
-            cat inventory.txt && \
+            cd .circleci/ansible
             ansible-playbook -i inventory.txt configure-server.yml
-      - destroy-environment:
-          workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7} 
 
-
-  # configure-infrastructure:
-  #   docker:
-  #     - image: cimg/base:stable
-  #   steps:
-  #     - checkout
-  #     - install_awscli
-  #     - install_ansible
-  #     - add_ssh_keys:
-  #         fingerprints: 
-  #         - "64:fd:52:42:8f:f6:6b:84:a1:68:fa:06:ee:32:81:1c"
-      
-  #     - attach_workspace:
-  #         at: ~/
-
-  #     - run:
-  #         name: Configure server
-  #         command: |
-  #           cd .circleci/ansible
-  #           cat inventory.txt
-  #           ansible-playbook -i inventory.txt configure-server.yml
-  #     - destroy-environment 
+      - run:
+          name: node_exporter
+          command: |
+            # Your code here
+            cd .circleci/ansible
+            ansible-playbook -i inventory.txt node-exporter.yml
+      - remove-bucket-contents
+      - destroy-environment 
 
 
   run-migrations:
