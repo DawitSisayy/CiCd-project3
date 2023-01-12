@@ -566,7 +566,8 @@ jobs:
 
   deploy-backend:
     docker:
-      - image: python:3.7-alpine3.11
+      - image: python:3.10-alpine3.16
+      # - image: python:3.7-alpine3.11
     steps:
       - checkout
 
@@ -580,8 +581,9 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update tar gzip ansible nodejs npm curl openssh-client
-            pip install awscli
+            apk add --update --no-cache tar gzip nodejs npm aws-cli ansible curl
+            # apk add --update tar gzip ansible nodejs npm curl openssh-client
+            # pip install awscli
       - run:
           name: Deploy backend
           # no_output_timeout: 30m
